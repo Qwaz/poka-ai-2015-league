@@ -1,0 +1,8 @@
+{
+  "server": "HAJE.SlimeAI.exe",
+  "ai_directory": "",
+  "ai": [
+    ["5 Gap", "five_gap.py"],
+    ["Random", "random_ai.py"]
+  ]
+}
