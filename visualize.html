@@ -3,6 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <title>POKA AI League Visualizer</title>
+
+    <style>
+        .win {
+            color: #33712c;
+        }
+        .lose {
+            color: #a31f12;
+        }
+    </style>
 </head>
 <body>
 <h1>POKA AI League Visualizer</h1>
@@ -10,11 +19,13 @@
 <h2>승리한 AI 수</h2>
 <canvas class="chart" id="winAICount"></canvas>
 
-<h2>총 승수</h2>
+<h2>총 승리 횟수</h2>
 <canvas class="chart" id="winCount"></canvas>
 
 <h2>총 영역</h2>
 <canvas class="chart" id="totalArea"></canvas>
+
+<h2>개별 AI 분석</h2>
 
 </div>
 <script src="Chart.min.js"></script>
@@ -109,7 +120,7 @@
                 labels: result.ai_list,
                 datasets: [
                     {
-                        label: '총 승수',
+                        label: '총 승리 횟수',
                         data: []
                     }
                 ]
@@ -143,6 +154,71 @@
 
             context = document.getElementById('totalArea').getContext('2d');
             new Chart(context).Bar(data);
+        })();
+
+        (function analyzeEachAI() {
+            var i, j, k, matchIndex, match, winCount, loseCount, AIName, enemyName;
+            var p, h3, ul, li, h4, ul2, li2;
+            for (i = 0; i < result.ai_list.length; i++) {
+                AIName = result.ai_list[i];
+
+                p = document.createElement('p');
+                h3 = document.createElement('h3');
+                h3.innerText = AIName;
+                p.appendChild(h3);
+
+                ul = document.createElement('ul');
+                for (j = 0; j < result.ai_list.length; j++) {
+                    if (i == j) continue;
+                    enemyName = result.ai_list[j];
+
+                    li = document.createElement('li');
+                    ul.appendChild(li);
+
+                    h4 = document.createElement('h4');
+                    h4.innerText = 'vs ' + enemyName;
+                    li.appendChild(h4);
+
+                    ul2 = document.createElement('ul');
+                    li.appendChild(ul2);
+                    for (matchIndex = 0; matchIndex < result.match.length; matchIndex++) {
+                        match = result.match[matchIndex];
+                        winCount = loseCount = 0;
+                        if (match.team1 == AIName && match.team2 == enemyName) {
+                            for (k = 0; k < 5; k++) {
+                                li2 = document.createElement('li');
+                                if (match.result[k][0] > match.result[k][1]) {
+                                    winCount++;
+                                    li2.classList.add('win');
+                                } else if (match.result[k][0] < match.result[k][1]) {
+                                    loseCount++;
+                                    li2.classList.add('lose');
+                                }
+                                li2.innerText = match.result[k][0]+' : '+match.result[k][1];
+                                ul2.appendChild(li2);
+                            }
+                        } else if (match.team2 == AIName && match.team1 == enemyName) {
+                            for (k = 0; k < 5; k++) {
+                                li2 = document.createElement('li');
+                                if (match.result[k][0] > match.result[k][1]) {
+                                    loseCount++;
+                                    li2.classList.add('lose');
+                                } else if (match.result[k][0] < match.result[k][1]) {
+                                    winCount++;
+                                    li2.classList.add('win');
+                                }
+                                li2.innerText = match.result[k][1]+' : '+match.result[k][0];
+                                ul2.appendChild(li2);
+                            }
+                        }
+                        if (winCount > loseCount) li.classList.add('win');
+                        else if (winCount < loseCount) li.classList.add('lose');
+                    }
+                }
+                p.appendChild(ul);
+
+                document.body.appendChild(p);
+            }
         })();
     })();
 </script>
