@@ -38,7 +38,8 @@ for index1, team1 in enumerate(setting['ai']):
             "result": []
         }
 
-        for i in range(5):
+        match_count = 0
+        while match_count < 5:
             time.sleep(1)
             server_process = subprocess.Popen(os.path.join(setting['server_directory'], 'HAJE.SlimeAI.exe'),
                                               cwd=setting['server_directory'])
@@ -50,17 +51,20 @@ for index1, team1 in enumerate(setting['ai']):
                                              stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
             count = [0, 0, 0]
-            while True:
-                line = team1_process.stdout.readline()
-                match = re.match(br'Result: (\d+) / (\d+) / (\d+)', line)
+            try:
+                outs, errs = team1_process.communicate(timeout=200)
+                match = re.search(br'Result: (\d+) / (\d+) / (\d+)', outs)
                 if match:
                     for i in range(3):
                         count[i] = int(match.group(i + 1))
-                    break
 
-            print('%s %d vs %s %d' % (team1[0], count[0], team2[0], count[1]))
-            current['result'].append(count)
-            server_process.kill()
+                server_process.kill()
+                print('%s %d vs %s %d' % (team1[0], count[0], team2[0], count[1]))
+                current['result'].append(count)
+                match_count += 1
+            except subprocess.TimeoutExpired:
+                server_process.kill()
+                print('Error: Timeout - Retrying...')
 
         result['match'].append(current)
 
