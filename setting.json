@@ -3,6 +3,14 @@
   "ai_directory": "AI2015",
   "ai": [
     ["5 Gap", "five_gap.py"],
-    ["Random", "random_ai.py"]
+    ["Random", "random_ai.py"],
+    ["상자 인공지능", "cube_ai.py"],
+    ["POSCAP", "start2.py"],
+    ["구름yee", "nih2.py"],
+    ["KW", "kw.py"],
+    ["KW2", "kw2.py"],
+    ["Master Spark M", "msm.py"],
+    ["Master Spark S", "MSS3.py"],
+    ["쩡", "jjeong.py"]
   ]
 }
