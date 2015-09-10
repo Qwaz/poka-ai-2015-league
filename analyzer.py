@@ -54,19 +54,25 @@ for index1, team1 in enumerate(setting['ai']):
             try:
                 outs, errs = team1_process.communicate(timeout=200)
                 match = re.search(br'Result: (\d+) / (\d+) / (\d+)', outs)
-                if match:
+                if not match:
+                    raise Exception('Error: 팀 1 프로세스가 비정상 종료되었습니다')
+                else:
+                    if team2_process.wait(timeout=5) != 0:
+                        raise Exception('Error: 팀 2 프로세스가 비정상 종료되었습니다')
                     for i in range(3):
                         count[i] = int(match.group(i + 1))
 
+                    server_process.kill()
+                    print('%s %d vs %s %d' % (team1[0], count[0], team2[0], count[1]))
+                    current['result'].append(count)
+                    match_count += 1
+            except Exception as e:
                 server_process.kill()
-                print('%s %d vs %s %d' % (team1[0], count[0], team2[0], count[1]))
-                current['result'].append(count)
-                match_count += 1
-            except subprocess.TimeoutExpired:
-                server_process.kill()
-                print('Error: Timeout - Retrying...')
+                print(e)
 
         result['match'].append(current)
 
-result_file = open('result.json', 'w')
-json.dump(result, result_file)
+result_file = open('result.js', 'w')
+result_file.write('var result = ')
+result_file.write(json.dumps(result))
+result_file.write(';\n')
